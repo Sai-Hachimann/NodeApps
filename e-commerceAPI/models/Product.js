@@ -5,7 +5,6 @@ const ProductSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, 'Product should have a name'],
-      minlength: 3,
       maxlength: [45, 'Name cannot be more than 45 characters'],
     },
     price: {
@@ -16,7 +15,6 @@ const ProductSchema = new mongoose.Schema(
     description: {
       type: String,
       required: [true, 'Please provide product description'],
-      minlength: 180,
       maxlength: 540,
     },
     image: {
@@ -35,10 +33,11 @@ const ProductSchema = new mongoose.Schema(
         values: ['ikea', 'liddy', 'marcos'],
         message: '{VALUE} is not supported',
       },
-      required: [true, 'Please provide a name'],
+      required: [true, 'Please provide a company name'],
     },
     colors: {
-      type: String,
+      type: [String],
+      default: ['#999'],
       required: true,
     },
     featured: {
