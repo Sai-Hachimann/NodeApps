@@ -1,18 +1,33 @@
-module.exports.createProduct = async = (req, res) => {
-  res.send('create product route');
+const Product = require('../models/Product');
+const { StatusCodes } = require('http-status-codes');
+const CustomErrors = require('../errors');
+
+const createProduct = async (req, res) => {
+  req.body.user = req.user.userId;
+  const product = await Product.create(req.body);
+  res.status(StatusCodes.CREATED).json({ product });
 };
-module.exports.getAllProducts = async = (req, res) => {
-  res.send('get all products route');
+const getAllProduct = async (req, res) => {
+  res.send('getAll product');
 };
-module.exports.getSingleProduct = async = (req, res) => {
-  res.send('get single product route');
+const getSingleProduct = async (req, res) => {
+  res.send('getSingle product');
 };
-module.exports.updateProduct = async = (req, res) => {
-  res.send('update product route');
+const updateProduct = async (req, res) => {
+  res.send('update product');
 };
-module.exports.deleteProduct = async = (req, res) => {
-  res.send('delete product route');
+const deleteProduct = async (req, res) => {
+  res.send('delete product');
 };
-module.exports.uploadProduct = async = (req, res) => {
-  res.send('upload product route');
+const uploadImage = async (req, res) => {
+  res.send('upload product');
+};
+
+module.exports = {
+  createProduct,
+  getAllProduct,
+  getSingleProduct,
+  updateProduct,
+  deleteProduct,
+  uploadImage,
 };

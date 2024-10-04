@@ -1,26 +1,26 @@
-const CustomErr = require('../errors');
+const CustomError = require('../errors');
 const { isTokenValid } = require('../utils');
 
 const authenticateUser = async (req, res, next) => {
   const token = req.signedCookies.token;
 
   if (!token) {
-    throw new CustomErr.UnauthenticatedError('Invalid Token');
+    throw new CustomError.UnauthenticatedError('Authentication is invalid');
   }
 
   try {
-    const { name, userId, role } = isTokenValid({ token });
-    req.user = { name: name, userId: userId, role: role };
-    next();
+    const { name, userId, role } = isTokenValid({ token: token });
+    req.user = { name, userId, role };
   } catch (error) {
-    throw new CustomErr.UnauthenticatedError('Invalid Token');
+    console.log(error);
   }
+  next();
 };
 
 const authorizePermissions = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      throw new CustomErr.UnauthorizedError('Unauthroized route');
+      throw new CustomError.UnauthorizedError('Only admin can view this route');
     }
     next();
   };

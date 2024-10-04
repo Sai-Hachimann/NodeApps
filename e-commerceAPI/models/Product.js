@@ -4,40 +4,41 @@ const ProductSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Every product must have valid name'],
-      trim: true,
-      maxlength: [100, 'Name cannot be more than 100 characters'],
+      required: [true, 'Product should have a name'],
+      minlength: 3,
+      maxlength: [45, 'Name cannot be more than 45 characters'],
     },
     price: {
       type: Number,
-      required: [true, 'Every product must have valid price'],
+      required: [true, 'Product should have a price'],
       default: 0,
     },
     description: {
       type: String,
-      required: [true, 'Every product must have valid description'],
-      trim: true,
-      maxlength: [1000, 'Description cannot be more than 100 characters'],
+      required: [true, 'Please provide product description'],
+      minlength: 180,
+      maxlength: 540,
     },
     image: {
       type: String,
       default: '/uploads/example.jpeg',
+      required: [true, 'Please upload an image of product'],
     },
     category: {
       type: String,
-      required: [true, 'Every product must have a category'],
       enum: ['office', 'kitchen', 'bedroom'],
+      required: [true, 'Please provide product category'],
     },
     company: {
       type: String,
-      required: [true, 'Every product must have a company name'],
       enum: {
         values: ['ikea', 'liddy', 'marcos'],
         message: '{VALUE} is not supported',
       },
+      required: [true, 'Please provide a name'],
     },
     colors: {
-      type: [String],
+      type: String,
       required: true,
     },
     featured: {
@@ -51,11 +52,10 @@ const ProductSchema = new mongoose.Schema(
     inventory: {
       type: Number,
       required: true,
-      default: 15,
+      default: 9,
     },
     averageRating: {
       type: Number,
-      required: [true, 'Every product must have valid name'],
       default: 0,
     },
     user: {
@@ -67,4 +67,4 @@ const ProductSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Product', ProductSchema);
+module.exports = mongoose.model('Products', ProductSchema);

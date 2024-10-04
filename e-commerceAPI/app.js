@@ -1,55 +1,54 @@
 require('dotenv').config();
 require('express-async-errors');
+//Database
+const connectDB = require('./db/connect');
+
+//utility
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+//routers
+const authRouter = require('./routes/authRouter');
+const userRouter = require('./routes/userRoutes');
+const productsRouter = require('./routes/productsRouter');
+//errorHandler Middlewares
+const notFoundMiddleWare = require('./middleware/not-found');
+const errorHandlerMiddleware = require('./middleware/error-handler');
 
 //express
 const express = require('express');
 const app = express();
 
-//other additional packages
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-//database
-const connectDB = require('./db/connect');
-
-//routers
-const authRouter = require('./routes/authRoutes');
-const userRouter = require('./routes/userRoutes');
-const productRouter = require('./routes/productRoutes');
-//errorhandler middleware
-const notFoundMiddleware = require('./middleware/not-found');
-const errorHandlerMiddleware = require('./middleware/error-handler');
-
-//json, morgan middleware
+//additional packages
 app.use(morgan('tiny'));
 app.use(express.json());
 app.use(cookieParser(process.env.JWT_SECRET));
+//routes
 
 app.get('/', (req, res) => {
-  res.send('hello from middleware');
+  res.status(200).send('Home Route');
 });
 app.get('/api/v1', (req, res) => {
   console.log(req.signedCookies);
-  res.send('hello from middleware');
+  res.status(200).send('Home Route');
 });
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/products', productRouter);
-
-app.use(notFoundMiddleware);
+app.use('/api/v1/products', productsRouter);
+app.use(notFoundMiddleWare);
 app.use(errorHandlerMiddleware);
-
+//port variable
 const port = process.env.PORT || 5000;
 
-async function start() {
+async function startfn() {
   try {
     await connectDB(process.env.MONGO_URL);
     app.listen(port, () => {
-      console.log(`server is listening on ${port}`);
+      console.log(`the server is listening on port ${port}`);
     });
   } catch (error) {
     console.log(error);
   }
 }
 
-start();
+startfn();

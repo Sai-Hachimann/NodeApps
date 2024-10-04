@@ -1,101 +1,66 @@
-const User = require('../models/Users');
+const User = require('../models/User');
 const { StatusCodes } = require('http-status-codes');
-const {
-  NotFoundError,
-  UnauthenticatedError,
-  BadRequestError,
-} = require('../errors');
+const CustomError = require('../errors');
 const {
   createTokenUser,
   attachCookiesToResponse,
   checkPermissions,
 } = require('../utils');
 
-module.exports.getAllUsers = async (req, res, next) => {
-  console.log(req.user);
-
-  const users = await User.find({ role: 'user' }).select('-password');
-
-  res.status(StatusCodes.OK).json({ users });
+const getAllUsers = async (req, res) => {
+  const users = await User.find({}).select('-password');
+  res.status(StatusCodes.OK).json({ users: users });
 };
 
-module.exports.getSingleUser = async (req, res, next) => {
-  const id = req.params.id;
-
-  if (!id) {
-    throw new NotFoundError('Not found');
+const getSingleUser = async (req, res) => {
+  const user = await User.findOne({ _id: req.params.id }).select('-password');
+  if (!user) {
+    throw new CustomError.NotFoundError(`No user with id ${req.params.id}`);
   }
-
-  const user = await User.findOne({ _id: id }).select('-password');
   checkPermissions(req.user, user._id);
-  res.status(StatusCodes.OK).json({ user });
-  /*
-  const user = await user.findOne({_id:req.params.id}).select('-password');
-  if(!user){
-    throw new NotFoundError('user not found');
-  }
-  res.status(StatusCodes.OK).json({ user });
-  */
+  res.status(StatusCodes.OK).json({ users: user });
 };
 
-module.exports.showCurrentUser = async (req, res, next) => {
+const showCurrentUser = async (req, res) => {
   res.status(StatusCodes.OK).json({ user: req.user });
 };
 
-//update user with user.save()
-module.exports.updateUser = async (req, res, next) => {
-  const { email, name } = req.body;
-  if (!email || !name) {
-    throw new BadRequestError('Please provide valid name and email');
+const updateUser = async (req, res) => {
+  const { name, email } = req.body;
+  if (!name || !email) {
+    throw new CustomError.BadRequestError('Please provide valid credentials');
   }
-  const user = await User.findOne({ _id: req.user.userId });
-
-  user.email = email;
-  user.name = name;
-
-  await user.save();
-
-  const tokenUser = createTokenUser({ user });
-  attachCookiesToResponse({ res, tokenUser });
+  const user = await User.findOneAndUpdate(
+    { _id: req.user.userId },
+    { email, name },
+    { new: true, runValidators: true }
+  );
+  const tokenUser = createTokenUser(user);
+  attachCookiesToResponse({ res, tokenUser: tokenUser });
   res.status(StatusCodes.OK).json({ user: tokenUser });
 };
 
-module.exports.updateUserPassword = async (req, res, next) => {
+const updateUserPassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-
   if (!oldPassword || !newPassword) {
-    throw new BadRequestError('Passwords do not match');
+    throw new CustomError.BadRequestError('Credentials dont match');
   }
-
   const user = await User.findOne({ _id: req.user.userId });
 
-  const isPasswordCorrect = await user.comparePassword(oldPassword);
-
-  if (!isPasswordCorrect) {
-    throw new UnauthenticatedError('Passwords do not match');
+  const prevPassword = await user.comparePassword(oldPassword);
+  if (!prevPassword) {
+    throw new CustomError.UnauthenticatedError('Credentials dont match');
   }
-
   user.password = newPassword;
 
   await user.save();
-
-  res.status(StatusCodes.OK).json({ msg: 'Password updated successfully!!' });
+  res.status(StatusCodes.OK).json({ msg: 'Password updated' });
 };
 
-//UPDATE USER USING FINDONEANDUPDATE
-// module.exports.updateUser = async (req, res, next) => {
-//   const { email, name } = req.body;
-//   if (!email || !name) {
-//     throw new BadRequestError('Please provide valid name and email');
-//   }
-
-//   const user = await User.findOneAndUpdate(
-//     { _id: req.user.userId },
-//     { name, email },
-//     { new: true, runValidators: true }
-//   );
-
-//   const tokenUser = createTokenUser({ user });
-//   attachCookiesToResponse({ res, tokenUser });
-//   res.status(StatusCodes.OK).json({ user: tokenUser });
-// };
+module.exports = {
+  getAllUsers,
+  getSingleUser,
+  showCurrentUser,
+  updateUser,
+  updateUserPassword,
+};
