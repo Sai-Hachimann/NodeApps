@@ -15,7 +15,10 @@ const getAllProduct = async (req, res) => {
 
 const getSingleProduct = async (req, res) => {
   const productId = req.params.id;
-  const product = await Products.findOne({ _id: productId });
+  const product = await Products.findOne({ _id: productId }).populate(
+    'reviews'
+  );
+
   if (!product) {
     throw new CustomErrors.NotFoundError(`no product with this ${productId}`);
   }
@@ -37,14 +40,14 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   const productId = req.params.id;
-  const product = await Products.findOneAndDelete({ _id: productId });
+  const product = await Products.findOne({ _id: productId });
 
   // const product = await Products.findOne({ _id: productId });
   if (!product) {
     throw new CustomErrors.NotFoundError(`no product with this ${productId}`);
   }
 
-  // await product.remove();
+  await product.deleteOne();
   res.status(StatusCodes.OK).json({ msg: 'deleted product' });
 };
 

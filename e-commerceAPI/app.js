@@ -10,6 +10,7 @@ const fileUpload = require('express-fileupload');
 const authRouter = require('./routes/authRouter');
 const userRouter = require('./routes/userRoutes');
 const productsRouter = require('./routes/productsRouter');
+const reviewRouter = require('./routes/reviewsRouter');
 //errorHandler Middlewares
 const notFoundMiddleWare = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
@@ -38,6 +39,7 @@ app.get('/api/v1', (req, res) => {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productsRouter);
+app.use('/api/v1/reviews', reviewRouter);
 app.use(notFoundMiddleWare);
 app.use(errorHandlerMiddleware);
 //port variable

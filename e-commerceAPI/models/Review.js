@@ -12,11 +12,13 @@ const ReviewSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: [true, 'Please provide a review title'],
+      minlength: 9,
       maxlength: 99,
     },
     comment: {
       type: String,
       required: [true, 'Please provide a comment about the product'],
+      minlength: 9,
       maxlength: 999,
     },
     user: {
@@ -25,8 +27,8 @@ const ReviewSchema = new mongoose.Schema(
       required: true,
     },
     product: {
-      type: mongoose.Types.ObjectId,
-      ref: 'Product',
+      type: mongoose.Schema.ObjectId,
+      ref: 'Products',
       required: true,
     },
   },
