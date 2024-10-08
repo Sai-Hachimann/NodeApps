@@ -11,6 +11,7 @@ const authRouter = require('./routes/authRouter');
 const userRouter = require('./routes/userRoutes');
 const productsRouter = require('./routes/productsRouter');
 const reviewRouter = require('./routes/reviewsRouter');
+const orderRouter = require('./routes/orderRouter');
 //errorHandler Middlewares
 const notFoundMiddleWare = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
@@ -40,6 +41,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productsRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/orders', orderRouter);
 app.use(notFoundMiddleWare);
 app.use(errorHandlerMiddleware);
 //port variable

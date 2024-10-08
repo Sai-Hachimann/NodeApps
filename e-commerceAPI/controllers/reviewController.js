@@ -8,7 +8,6 @@ const { checkPermissions } = require('../utils');
 const createReview = async (req, res) => {
   const productId = req.body.product;
   req.body.user = req.user.userId;
-  console.log(productId);
   const isProductValid = await Products.findOne({ _id: productId });
 
   if (!isProductValid) {
@@ -48,13 +47,18 @@ const getSingleReview = async (req, res) => {
 
 const updateReview = async (req, res) => {
   const reviewId = req.params.id;
+  const { title, comment, rating } = req.body;
+  if (!title | !comment | !rating) {
+    throw new CustomError.BadRequestError('provide fields to write a review');
+  }
   if (!reviewId) {
     throw new CustomError.NotFoundError(`No review with id: ${reviewId}`);
   }
-  const review = await Reviews.findOneAndUpdate({ _id: reviewId }, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const review = await Reviews.findOne({ _id: reviewId });
+  review.title = title;
+  review.comment = comment;
+  review.rating = rating;
+  await review.save();
   res.status(StatusCodes.OK).json({ review });
 };
 
@@ -66,7 +70,7 @@ const deleteReview = async (req, res) => {
   }
   const review = await Reviews.findOne({ _id: reviewId });
   checkPermissions(req.user, review.user);
-  await Reviews.deleteOne();
+  await review.deleteOne();
   res.status(StatusCodes.OK).json({ msg: 'Deleted the review' });
 };
 
